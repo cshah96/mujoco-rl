@@ -64,18 +64,23 @@ def main():
     candidates += sorted(ckpts, key=lambda c: int(re.search(r"_(\d+)_steps", c).group(1)))
 
     results = []
+    final_score = None
     for c in candidates:
         if not os.path.exists(c):
             continue
         ret, length, speed = evaluate(c, args.episodes)
         results.append((ret, c))
+        if final_score is None:
+            final_score = ret  # candidates[0] is the end-of-training policy
         extra = f"  speed {speed:5.2f} m/s" if speed is not None else ""
         print(f"{os.path.relpath(c, common.REPO_ROOT):70s} return {ret:8.1f}  "
               f"len {length:6.1f}{extra}", flush=True)
 
     best_ret, best = max(results)
     print(f"\nBest: {os.path.relpath(best, common.REPO_ROOT)} (mean return {best_ret:.1f})")
-    if args.dry_run or best in (final_model, kept_final):
+    # The last checkpoint holds the same weights as the final policy; only
+    # promote when another checkpoint scores clearly (>1%) better.
+    if args.dry_run or best_ret <= final_score + 0.01 * abs(final_score):
         print("Main policy unchanged.")
         return
 

@@ -8,8 +8,8 @@ task, ordered from "balance a stick" to "walk on four legs at a set speed":
 |---|---|---|---|---|
 | 1 | Inverted pendulum | `scripts/train_inverted_pendulum.py` | PPO | ~1 min |
 | 2 | Inverted double pendulum | `scripts/train_inverted_double_pendulum.py` | SAC | ~25 min |
-| 3 | Hopper (one-legged hopping) | `scripts/train_hopper.py` | SAC | ~1–2 h |
-| 4 | Ant walking at a constant speed | `scripts/train_ant_constant_speed.py` | SAC | ~2–3 h |
+| 3 | Hopper (one-legged hopping) | `scripts/train_hopper.py` | SAC | ~2 h |
+| 4 | Ant walking at a constant speed | `scripts/train_ant_constant_speed.py` | SAC | ~2 h |
 
 Every script trains **headless**: nothing is drawn on screen, so it runs at
 full speed over SSH, in `tmux`, or as a background job. Every script saves
@@ -563,6 +563,21 @@ of the target, with returns of roughly 2,500 or more.
 **Policy trained**: SAC with the same settings as Hopper (256-256 ReLU,
 `learning_starts=10k`, buffer 1M, batch 256, `lr=3e-4`, `γ=0.99`, `τ=0.005`,
 auto entropy). 1M steps, checkpoint every 100k.
+
+**Result achieved here** (1M steps, 128 min): the final policy was also the
+best checkpoint. It completes **5/5** test episodes with a return of about
+**2,590**, walking at a steady **0.94 m/s**. Its 1-second averages stay
+between 0.84 and 1.03 m/s, and sideways drift is about 0.02 m/s, so it walks
+essentially straight. The learning curve (deterministic eval of each
+checkpoint) went from 0.47 m/s while falling at 100k steps, to full-length
+episodes from 400k, to a stable ~0.95 m/s from 500k on.
+
+Why it settles about 6% *under* the target: at 0.94 m/s the tracking kernel is
+still `exp(-(0.06/0.5)²) ≈ 0.986` of its maximum. That's only 0.03 reward per
+step lost, and walking slightly slower saves more than that in control cost.
+The optimizer found the true optimum of the reward *as written*. To track the
+target more tightly, lower `tracking_sigma` (for example to 0.25) or raise
+`tracking_weight`.
 
 **What to notice**: this is reward *design*, the hardest practical skill in
 RL. Try changing `tracking_sigma`, `tracking_weight`, or `lateral_weight` in
