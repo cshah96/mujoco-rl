@@ -1,0 +1,7 @@
+{
+  "env_id": "Hopper-v5",
+  "env_kwargs": {},
+  "algo": "sac",
+  "timesteps": 1000000,
+  "seed": 0
+}

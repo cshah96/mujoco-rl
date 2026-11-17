@@ -1,0 +1,10 @@
+# Installed in the shared venv at ~/workspaces/.venv
+# Recreate with: pip install -r requirements.txt
+gymnasium[mujoco]==1.2.3
+mujoco==3.6.0
+stable-baselines3==2.9.0
+torch==2.13.0
+tensorboard==2.21.0
+imageio==2.37.3
+imageio-ffmpeg==0.6.0
+tqdm

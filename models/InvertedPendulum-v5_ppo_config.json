@@ -1,0 +1,7 @@
+{
+  "env_id": "InvertedPendulum-v5",
+  "env_kwargs": {},
+  "algo": "ppo",
+  "timesteps": 100000,
+  "seed": 0
+}
